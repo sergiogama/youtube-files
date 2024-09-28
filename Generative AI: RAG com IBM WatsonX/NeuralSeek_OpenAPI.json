@@ -1,0 +1,439 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.2.17",
+    "title": "NeuralSeek",
+    "description": "NeuralSeek - The business LLM accelerator",
+    "license": {
+      "name": "End User License Agreement",
+      "url": "https://neuralseek.com/eula"
+    },
+    "contact": {
+      "name": "NeuralSeek Support",
+      "url": "https://neuralseek.com",
+      "email": "support@NeuralSeek.com"
+    },
+    "termsOfService": "https://neuralseek.com/eula"
+  },
+  "servers": [
+    {
+      "url": "https://api.neuralseek.com/v1/{instance}",
+      "description": "NeuralSeek API server",
+      "variables": {
+        "instance": {
+          "default": "crn%3Av1%3Abluemix%3Apublic%3Aneuralseek%3Aus-south%3Aa%2F9f8f95eee4714473a87fa319d964063c%3A419a0957-7a5e-48f5-86c2-86457e77267d%3A%3A",
+          "description": "Your instance ID"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/seek": {
+      "post": {
+        "tags": [
+          "Seek"
+        ],
+        "summary": "Seek an answer from NeuralSeek",
+        "description": "This endpoint takes an input object with a user question, context and options and returns a response object",
+        "operationId": "seekAnswer",
+        "requestBody": {
+          "description": "The request object.  Must include the question and a context.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/seek"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Answer response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/seek_response"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "apikey",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "seek": {
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "The user's question for NeuralSeek"
+          },
+          "user_session": {
+            "type": "object",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "string",
+                    "description": "A unique user identifier."
+                  }
+                }
+              },
+              "system": {
+                "type": "object",
+                "properties": {
+                  "session_id": {
+                    "type": "string",
+                    "description": "A session identifier for the defined user."
+                  }
+                }
+              }
+            },
+            "description": "Context tracking object. You must set at least one of user_id or session_id to enable context keeping."
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "personalize": {
+                "type": "object",
+                "description": "An object that allows NeuralSeek to tailor a response for a specific user",
+                "properties": {
+                  "preferredName": {
+                    "type": "string",
+                    "description": "The name the user should be referred to by"
+                  },
+                  "noWelcome": {
+                    "type": "string",
+                    "description": "The user has already been welcomed, do not re-welcome.  Valid value is 'true' or 'false'.  Default value is 'false'."
+                  },
+                  "forceFirstPerson": {
+                    "type": "string",
+                    "description": "Use a first-person speaking style, even if no preferredName is set.  Valid value is 'true' ou 'false'.  Default value is 'false'."
+                  },
+                  "products": {
+                    "type": "array",
+                    "description": "An array of products this customer currently consumes from your company",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalDetails": {
+                    "type": "string",
+                    "description": "Additional details to pass to language generation"
+                  }
+                }
+              },
+              "proposalID": {
+                "type": "string",
+                "description": "Override all settings by passing a NeuralSeek Proposal ID."
+              },
+              "override": {
+                "type": "string",
+                "description": "Override all settings by passing a NeuralSeek configuration.  Pass the full and exact text in a NeuralSeek configuration .dat file"
+              },
+              "streaming": {
+                "type": "boolean",
+                "default": false,
+                "description": "Return the response via SSE streaming.  This is not compatible with most Virtual Agent platforms, and is intended for direct website use."
+              },
+              "seekLLM": {
+                "type": "string",
+                "description": "Override the LLM load balancer and force seek to use a specific LLM.  Input the LLM code here.  You must have a valid model card set up on the configure tab for the code you input."
+              },
+              "language": {
+                "type": "string",
+                "description": "Valid values are: xx, ab, aa, af, ak, sq, am, ar, an, hy, as, av, ae, ay, az, bm, ba, eu, be, bn, bh, bi, bs, pt-br, br, bg, my, ca, km, ch, ce, ny, zh, zh-cn, zh-tw, cu, cv, kw, co, cr, hr, cs, da, dv, nl, dz, en, eo, et, ee, fo, fj, fi, fr, ff, gd, gl, lg, ka, de, el, gn, gu, ht, ha, he, hz, hi, ho, hu, is, io, ig, id, ia, ie, iu, ik, ga, it, ja, jv, kl, kn, kr, ks, kk, ki, rw, ky, kv, kg, ko, kj, ku, lo, la, lv, li, ln, lt, lu, lb, mk, mg, ms, ml, mt, gv, mi, mr, mh, mn, na, nv, nd, nr, ng, ne, se, nn, no, nb, oc, oj, or, om, os, pi, pa, fa, pl, pt, ps, qu, ro, rm, rn, ru, sm, sg, sa, sc, sr, sn, ii, sd, si, sk, sl, so, st, es, su, sw, ss, sv, tl, ty, tg, ta, tt, te, th, bo, ti, to, ts, tn, tr, tk, tw, ug, uk, ur, uz, ve, vi, vo, wa, cy, fy, wo, xh, yi, yo, za, zu"
+              },
+              "filter": {
+                "type": "string",
+                "description": "Text to use as a filter against the filter field set in the KnowledgeBase configuration. Use commas to separate multiple strings for an 'or' filter. You can use the filter to isolate a certain subset of documents in the knowledgebase."
+              },
+              "company": {
+                "type": "string",
+                "description": "The company or Brand.  If bias is enabled, bias will be towards this thing."
+              },
+              "semanticScore": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "string",
+                    "description": "Enable the semantic Score model.  Valid values are the strings 'true' and 'false'"
+                  },
+                  "primary": {
+                    "type": "string",
+                    "description": "Use the Semantic Score for minimum and warning confidence thresholds.  Valid values are the strings 'true' and 'false'"
+                  }
+                }
+              },
+              "lastTurn": {
+                "type": "array",
+                "description": "lastTurn is a flexible object. It is backwards compatible with the original single turn object, as well as compatible with the Watson Assistant session history format.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "input": {
+                      "type": "string",
+                      "description": "The user input"
+                    },
+                    "response": {
+                      "type": "string",
+                      "description": "The system response.  Text strings only here. "
+                    }
+                  }
+                }
+              },
+              "pullToCompany": {
+                "type": "string",
+                "description": "Enable company bias.  Valid values are the strings 'true' and 'false'"
+              },
+              "promptEngineering": {
+                "type": "string",
+                "description": "Enable Prompt engineering.  Valid values are the strings 'true' and 'false'"
+              },
+              "promptEngineeringPhrase": {
+                "type": "string",
+                "description": "Prepend a phrase to cleansed user input. Must enable Prompt Engineering inside the NeuralSeek \"Configure\" page"
+              },
+              "answerEngineering": {
+                "type": "string",
+                "example": "[{'re':'/hi/gi', 'rp':'Bye!'}]",
+                "description": "An array of objects, stringified."
+              },
+              "warnConfidence": {
+                "type": "integer",
+                "example": "5",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "A whole number from 0 to 100"
+              },
+              "warnConfidenceText": {
+                "type": "string",
+                "description": "Text to prepend on warning confidence levels"
+              },
+              "minConfidence": {
+                "type": "integer",
+                "example": "0",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "A whole number from 0 to 100"
+              },
+              "minConfidenceText": {
+                "type": "string",
+                "description": "Text to respond with for blocked minimum confidence responses"
+              },
+              "misTolerance": {
+                "type": "integer",
+                "example": "0",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Misinformation Tolerance. A whole number from 0 to 100"
+              },
+              "sensitiveText": {
+                "type": "string",
+                "description": "Text to respond with for blocked sensitive responses"
+              },
+              "minText": {
+                "type": "string",
+                "description": "Text to respond with for blocked minimum word responses"
+              },
+              "maxWords": {
+                "type": "string",
+                "description": "Text to respond with for blocked maximum word responses"
+              },
+              "maxWordsNumber": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "A whole number from 1 to 100.  100 is unlimited."
+              },
+              "answerLength": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4,
+                "description": "The verbosity of the answer. A whole number 1-4"
+              },
+              "url": {
+                "type": "string",
+                "description": "URL of the current page when using with a web-based Virtual Agent"
+              },
+              "stump": {
+                "type": "string",
+                "description": "Stump Speech text. Fallback for when all else fails."
+              },
+              "includeSourceResults": {
+                "type": "boolean",
+                "default": false,
+                "description": "Include generation source results. Defaults to false."
+              },
+              "includeSourceResultsFormatted": {
+                "type": "boolean",
+                "default": false,
+                "description": "Include generation source results, and output them into a formatted string.  Defaults to false."
+              },
+              "sourceResultsNumber": {
+                "type": "integer",
+                "default": 3,
+                "minimum": 1,
+                "maximum": 30,
+                "description": "When including source results, how many to include.'"
+              },
+              "sourceResultsSummaryLength": {
+                "type": "integer",
+                "default": 100,
+                "minimum": 0,
+                "maximum": 2000,
+                "description": "When including source results, how long of a summary to include.'"
+              }
+            },
+            "description": "Optional object for runtime override of Seek options."
+          }
+        }
+      },
+      "seek_response": {
+        "type": "object",
+        "required": [
+          "answer",
+          "score"
+        ],
+        "properties": {
+          "answer": {
+            "type": "string",
+            "description": "The generated answer"
+          },
+          "answerId": {
+            "type": "string",
+            "description": "The id of the answer. Use this to refer to it from other endpoints, such as the Rating endpoint"
+          },
+          "thumbs": {
+            "type": "string",
+            "description": "The URL of a rating HTML page with an SVG to embed with the answer to allow easy rating."
+          },
+          "thumbsSVG": {
+            "type": "string",
+            "description": "The URL of a rating SVG to display with the answer to allow easy rating."
+          },
+          "intent": {
+            "type": "string",
+            "description": "The intent of the answer."
+          },
+          "category": {
+            "type": "integer",
+            "description": "The category id of the answer."
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "The category name of the answer."
+          },
+          "score": {
+            "type": "integer",
+            "description": "The final confidence score of the answer (0-100)"
+          },
+          "KBscore": {
+            "type": "integer",
+            "description": "The KnowledgeBase confidence of the answer's source documentation  (0-100)"
+          },
+          "cachedResult": {
+            "type": "string",
+            "description": "If the result came from cache, will be set to the string 'true'"
+          },
+          "langCode": {
+            "type": "string",
+            "description": "The language code of the answer. If you set the input language code to 'xx' to identify the language, this is useful to condition of the found language and response."
+          },
+          "url": {
+            "type": "string",
+            "description": "The top scoring URL (if available) used to train the answer. Set the field you want returned here in on the Configure tab. The field must contain a URL, or it will be ignored."
+          },
+          "document": {
+            "type": "string",
+            "description": "The top document (if available) used to train the answer. Set the field you want returned here in on the Configure tab"
+          },
+          "time": {
+            "type": "integer",
+            "description": "Total processing time in milliseconds"
+          },
+          "kbTime": {
+            "type": "integer",
+            "description": "KnowledgeBase response time in milliseconds"
+          },
+          "sourceResultsFormatted": {
+            "type": "string",
+            "description": "A listing of the passages used for answer summarization. This will only return if includeSourceResultsFormatted is set to true on the request"
+          },
+          "passages": {
+            "description": "A listing of the passages used for answer summarization. This will only return if includeSourceResults is set to true on the request",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "passage": {
+                  "type": "string",
+                  "description": "The passage text, summarized to the length set by sourceResultsSummaryLength"
+                },
+                "id": {
+                  "type": "string",
+                  "description": "The id of the source document in the KB."
+                },
+                "score": {
+                  "type": "integer",
+                  "description": "The score of the passage."
+                },
+                "url": {
+                  "type": "string",
+                  "description": "The URL (if available) of the source document."
+                },
+                "document": {
+                  "type": "string",
+                  "description": "The name of the source document."
+                },
+                "train": {
+                  "type": "string",
+                  "description": "The training token for the document. Use this when calling the /train endpoint."
+                }
+              }
+            }
+          },
+          "kbCoverage": {
+            "type": "integer",
+            "description": "KnowledgeBase coverage score. How much content was returned from the KnowledgeBase on the subject asked as compared to benchmarks. Low coverage is not necessarily indicative of bad content."
+          },
+          "sentiment": {
+            "type": "integer",
+            "description": "Sentiment score",
+            "minimum": 0,
+            "maximum": 9
+          },
+          "semanticScore": {
+            "type": "integer",
+            "description": "Semantic score (if enabled)",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "url": "https://neuralseek.com/documentation",
+    "description": "Documentation"
+  }
+}
